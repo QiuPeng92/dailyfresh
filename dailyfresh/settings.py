@@ -135,3 +135,17 @@ TINYMCE_DEFAULT_CONFIG = {
 
 # 替换django认证系统使用的默认模型类
 AUTH_USER_MODEL = 'user.User'
+
+# SMTP邮箱服务器配置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# 代理以及端口必须有
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 25
+# 发送邮件的邮箱
+EMAIL_HOST_USER = '976384846@qq.com'
+# 账号的密码必须是授权码，忘了的可以在qq邮箱里面设置，把已关闭 |  开启
+EMAIL_HOST_PASSWORD = "artyrjnpeqlebeeh"
+# 后面这个必须为False否则也是发不成功的
+# EMIAL_USE_TLS = False
+# 有这个就会显示是你的邮箱
+EMAIL_FROM = '天天生鲜<976384846@qq.com>'
