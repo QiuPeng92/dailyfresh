@@ -149,3 +149,18 @@ EMAIL_HOST_PASSWORD = "artyrjnpeqlebeeh"
 # EMIAL_USE_TLS = False
 # 有这个就会显示是你的邮箱
 EMAIL_FROM = '天天生鲜<976384846@qq.com>'
+
+# Django的缓存配置
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': "redis://192.168.0.111:6379/9",
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+# 配置session的存贮
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'

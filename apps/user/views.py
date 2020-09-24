@@ -1,13 +1,15 @@
 import re
 
+from django.conf import settings
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.views.generic import View
-from user.models import User
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
-from django.conf import settings
-from django.core.mail import send_mail
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
 from celery_tasks.tasks import send_register_active_email
+from user.models import User
+from django.contrib.auth.hashers import check_password
 
 
 def register(request):
@@ -85,7 +87,7 @@ class RegisterView(View):
             # 用户名已存在
             return render(request, 'register.html', {'errmsg': '用户名已存在'})
 
-        # 进行业务处理：进行哦用户注册
+        # 进行业务处理：进行用户注册
         user = User.objects.create_user(username, email, password)
         user.is_active = 0
         user.save()
@@ -132,3 +134,32 @@ class LoginView(View):
     def get(self, request):
         """显示登录页面"""
         return render(request, 'login.html')
+
+    def post(self, request):
+        """登录效验"""
+        # 接收数据
+        username = request.POST.get('username')
+        password = request.POST.get('pwd')
+
+        # 效验数据
+        if not all([username, password]):
+            return render(request, 'login.html', {'errmsg': '数据不完整'})
+
+        # 业务处理：登录效验
+        # user = authenticate(username=username, password=password)  # 有问题
+        user = User.objects.get(username=username)
+        pwd = user.password
+        # 用户名密码正确
+        if check_password(password, pwd):
+            if user.is_active:
+                # 用户已激活
+                # 记录用户的登录状态
+                login(request, user)
+                # 跳转到首页
+                return redirect(reverse('goods:index'))
+            else:
+                # 用户未激活
+                return render(request, 'login.html', {'errmsg': '账号未激活'})
+        else:
+            # 用户名或者密码错误
+            return render(request, 'login.html', {'errmsg': '用户名或者密码错误'})
