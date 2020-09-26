@@ -213,10 +213,11 @@ class UserInfoView(LoginRequiredMixin, View):
         # 除了你给模板文件传递的模板变量之外， django框架会把request.user也传递给模板文件
         # 通过request.user.is_authenticated()判断有没有登录
         # 获取用户的个人信息
-
+        user = request.user
+        address = Address.objects.get_default_address(user)
         # 获取用户的历史浏览记录
 
-        return render(request, 'user_center_info.html', {'page': 'user'})
+        return render(request, 'user_center_info.html', {'page': 'user', 'address':address})
 
 
 # /user/order
