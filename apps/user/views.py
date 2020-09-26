@@ -11,6 +11,7 @@ from celery_tasks.tasks import send_register_active_email
 from user.models import User
 from django.contrib.auth.hashers import check_password
 
+from utils.mixin import LoginRequiredMixin
 
 def register(request):
     if request.method == 'GET':
@@ -141,7 +142,7 @@ class LoginView(View):
             username = ''
             checked = ''
         # 使用模板
-        return render(request, 'login.html', {'username':username, 'checked':checked})
+        return render(request, 'login.html', {'username': username, 'checked': checked})
 
     def post(self, request):
         """登录效验"""
@@ -163,12 +164,16 @@ class LoginView(View):
                 # 用户已激活
                 # 记录用户的登录状态(将session存在redis中去)
                 login(request, user)
-                response = redirect(reverse('goods:index')) # response对象
+                # 跳转到登录后索要跳转到的地址
+                # 默认跳转到首页
+                next_url = request.GET.get('next', reverse('goods:index'))
+
+                response = redirect(next_url)  # response对象
                 # 判断是否需要记录用户名
                 remember = request.POST.get('remember')
                 if remember == 'on':
                     # 记住用户名
-                    response.set_cookie('username', username, max_age=7*24*3600)
+                    response.set_cookie('username', username, max_age=7 * 24 * 3600)
                 else:
                     response.delete_cookie('username')
                 # 跳转到首页
@@ -182,3 +187,28 @@ class LoginView(View):
             return render(request, 'login.html', {'errmsg': '用户名或者密码错误'})
 
 
+# /user
+class UserInfoView(LoginRequiredMixin, View):
+    """用户中心-信息页"""
+
+    def get(self, request):
+        """显示"""
+        return render(request, 'user_center_info.html', {'page': 'user'})
+
+
+# /user/order
+class UserOrderView(LoginRequiredMixin, View):
+    """用户中心-订单页"""
+
+    def get(self, request):
+        """显示"""
+        return render(request, 'user_center_order.html', {'page': 'order'})
+
+
+# user/address
+class AddressView(LoginRequiredMixin, View):
+    """用户中心-地址页"""
+
+    def get(self, request):
+        """显示"""
+        return render(request, 'user_center_site.html', {'page': 'address'})

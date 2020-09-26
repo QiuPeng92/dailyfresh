@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dailyfresh',
         'USER': 'root',
-        'HOST': '192.168.0.111',
+        'HOST': '192.168.0.113',
         'PORT': '3306',
         'PASSWORD': '995995',
     }
@@ -154,7 +154,7 @@ EMAIL_FROM = '天天生鲜<976384846@qq.com>'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': "redis://192.168.0.111:6379/9",
+        'LOCATION': "redis://192.168.0.113:6379/9",
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -164,3 +164,6 @@ CACHES = {
 # 配置session的存贮
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
+
+# 配置登录URL地址
+LOGIN_URL = '/user/login'
