@@ -1,7 +1,7 @@
 import re
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.views.generic import View
 from itsdangerous import SignatureExpired
@@ -12,6 +12,7 @@ from user.models import User
 from django.contrib.auth.hashers import check_password
 
 from utils.mixin import LoginRequiredMixin
+
 
 def register(request):
     if request.method == 'GET':
@@ -187,12 +188,29 @@ class LoginView(View):
             return render(request, 'login.html', {'errmsg': '用户名或者密码错误'})
 
 
+# /user/logout
+class LogoutView(View):
+    """退出登录"""
+
+    def get(self, request):
+        """退出登录"""
+        # 清除用户的session信息
+        logout(request)
+
+        # 跳转到首页
+        return redirect(reverse('goods:index'))
+
+
 # /user
 class UserInfoView(LoginRequiredMixin, View):
     """用户中心-信息页"""
 
     def get(self, request):
         """显示"""
+        # 如果用户未登录 --> AnonymousUser类的一个实例
+        # 如果用户登录--> User类的一个实例
+        # 除了你给模板文件传递的模板变量之外， django框架会把request.user也传递给模板文件
+        # 通过request.user.is_authenticated()判断有没有登录
         return render(request, 'user_center_info.html', {'page': 'user'})
 
 
