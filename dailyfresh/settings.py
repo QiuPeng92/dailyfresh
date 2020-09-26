@@ -158,6 +158,13 @@ CACHES = {
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
+    },
+    'history': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': "redis://192.168.0.113:6379/10",
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
 

@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.views.generic import View
 from itsdangerous import SignatureExpired
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from goods.models import GoodsSKU
 
 from celery_tasks.tasks import send_register_active_email
 from user.models import User
@@ -216,8 +217,24 @@ class UserInfoView(LoginRequiredMixin, View):
         user = request.user
         address = Address.objects.get_default_address(user)
         # 获取用户的历史浏览记录
+        # from redis import StrictRedis
+        # str = StrictRedis(host='192.168.0.113', port='6379', db=9)
+        from django_redis import get_redis_connection
+        con = get_redis_connection('history')
+        history_key = 'history_%d' % user.id
+        # 获取用户最新浏览的5个商品id
+        sku_ids = con.lrange(history_key, 0, 4)  # [2 ,3, 1]
+        # 从数据库中查询用户浏览的具体商品信息
+        goods_li = []
+        for id in sku_ids:
+            goods = GoodsSKU.objects.get(id=id)
+            goods_li.append(goods)
+        # 组织上下文
+        context = {'page': 'user',
+                   'address': address,
+                   'goods_li': goods_li}
 
-        return render(request, 'user_center_info.html', {'page': 'user', 'address':address})
+        return render(request, 'user_center_info.html', context)
 
 
 # /user/order
