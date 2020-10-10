@@ -1,19 +1,18 @@
 import re
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
+from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.views.generic import View
 from itsdangerous import SignatureExpired
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from goods.models import GoodsSKU
 
 from celery_tasks.tasks import send_register_active_email
-from user.models import User
-from django.contrib.auth.hashers import check_password
-
-from utils.mixin import LoginRequiredMixin
+from goods.models import GoodsSKU
 from user.models import Address
+from user.models import User
+from utils.mixin import LoginRequiredMixin
 
 
 def register(request):
