@@ -1,9 +1,19 @@
 from django.core.files.storage import Storage
 from fdfs_client.client import Fdfs_client
+from django.conf import settings
 
 
 class FDFSStorage(Storage):
     """fast dfs 文件存储类"""
+
+    def __init__(self, client_conf=None, base_url=None):
+        '''初始化'''
+        if client_conf is None:
+            client_conf = settings.FDFS_CLIENT_CONF
+        self.client_conf = client_conf
+        if base_url is None:
+            base_url = settings.FDFS_URL
+        self.base_url = base_url
 
     def _open(self, name, mode='rb'):
         '''打开文件时使用'''
@@ -14,7 +24,7 @@ class FDFSStorage(Storage):
         # name：你选择上传文件的名字
         # content: 包含你上传文件内容的File对象
         # 创建一个Fdfs_client对象
-        client = Fdfs_client('./utils/fdfs/client.conf')
+        client = Fdfs_client(self.client_conf)
 
         # 上传文件到fast dfs系统中
         res = client.upload_appender_by_buffer(content.read())
@@ -36,3 +46,7 @@ class FDFSStorage(Storage):
     def exists(self, name):
         # 如果提供的名称在文件系统中存在，则返回True
         return False
+
+    def url(self, name):
+        '''返回访问文件的url路径'''
+        return self.base_url + name
